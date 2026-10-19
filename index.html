@@ -294,10 +294,10 @@ const CL=[
  {id:"product",area:"pl",line:"pl",x:400,name:"Product Photography",lb:["Product","Photography"],level:"Fundamentals",len:"1 hour",
   desc:"Shoot in the lightbox and product photo area with the Sony A7R III, the lights and the turntable.",bring:"A product to photograph.",
   unlocks:"The product photo area: Sony A7R III, lights and turntable",pre:["orient"],svc:"8c10d1fe-2ce0-47ce-a110-12eea9e3c753",wi:[["Product Photography","WI-PL.Product_Photography.pptx"]]},
- {id:"ig1",area:"pl",line:"pl",x:540,name:"Image Gen 1: Restore & Remix",lb:["Image Gen 1"],level:"Fundamentals",len:"1 hour",
+ {id:"ig1",area:"pl",line:"pl",x:540,name:"AI Image 1: Restore & Remix",lb:["AI Image 1"],level:"Fundamentals",len:"1 hour",
   desc:"Repair, recolor, restyle and remix your own photos with AI. You control what changes and what stays.",bring:"A few photos you'd like to work on.",
-  leads:"Image Gen 2",pre:["orient"],svc:"46fb9bf4-96d7-4fd1-b7e0-8df6a91a09c9",wi:[],links:[["Class app","https://im4creative.github.io/MS-PL-Restore-and-Remix/"]]},
- {id:"ig2",area:"pl",line:"pl",x:700,name:"Image Gen 2: Brand & Promotion",lb:["Image Gen 2"],level:"Intermediate",len:"1 hour",
+  leads:"AI Image 2",pre:["orient"],svc:"46fb9bf4-96d7-4fd1-b7e0-8df6a91a09c9",wi:[],links:[["Class app","https://im4creative.github.io/MS-PL-Restore-and-Remix/"]]},
+ {id:"ig2",area:"pl",line:"pl",x:700,name:"AI Image 2: Brand & Promotion",lb:["AI Image 2"],level:"Intermediate",len:"1 hour",
   desc:"Build image prompts from scratch, one layer at a time: logo, subject, setting, style and layout.",
   pre:["ig1"],svc:"795ee9fb-0e49-4651-b275-9b91ee406503",wi:[],links:[["Class app","https://im4creative.github.io/MS-PL-Brand-and-Promotion/"]]},
  {id:"sewing",area:"ss",line:"ss",x:260,name:"Sewing",lb:["Sewing"],level:"Fundamentals",len:"1 hour",
@@ -422,7 +422,7 @@ function renderHelp(){
     ["3D Lab Help","7362e4c9-9961-42f5-a3e9-a1dfac4ab5fa","Slicing, a failed print or a model that won't print.","1 hour"],
     ["Photo Lab Help","8ce3f329-64a6-4add-b6dd-189c3f18f0d2","Camera settings, lighting or editing.","1 hour"],
     ["Laser Lab Help","d2ed981d-6216-4403-a734-b82349221f71","LightBurn settings, material tests or a cut that won't go through.","1 hour"],
-    ["Image Gen Design Help","2200d0ed-62d9-43ca-9ce6-cbf0127af2a2","Bring a design you're working on. Make it with AI image generation.","1 hour"],
+    ["AI Image Design Help","2200d0ed-62d9-43ca-9ce6-cbf0127af2a2","Bring a design you're working on. Make it with AI image generation.","1 hour"],
     ["DyeSub Reservation","c0689172-3928-4292-a972-045edfca50f7","The DyeSub printer and presses, yours for a block. Pass DyeSub & Heat Press first.","2 hours"]
   ];
   document.getElementById("helpgrid").innerHTML=H.map(h=>'<div class="hcard"><h4>'+esc(h[0])+'</h4><p>'+esc(h[2])+'</p><div class="cmeta"><span>'+h[3]+' · free</span></div><div class="cact"><a class="btn small" href="'+book(h[1])+'" target="_blank" rel="noopener">Book</a></div></div>').join("");
