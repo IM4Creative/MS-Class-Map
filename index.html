@@ -156,9 +156,10 @@ html.embed .hero .wrap{padding-block:4px 10px}
 html.embed main .wrap>*:not(.mapcard){display:none}
 html.embed main .wrap{padding-block:0}
 html.embed .wrap{max-width:none;padding-left:2px;padding-right:2px}
-html.embed .mapwrap svg{height:calc(100vh - 196px);min-height:430px}
+html.embed .mapwrap svg{height:calc(100vh - 196px);min-height:430px;min-width:640px}
 html.embed .fullmap{display:inline-flex}
-@media (max-width:780px){html.embed .mapwrap svg{height:auto;min-height:0}}
+@media (max-width:780px){html.embed .mapwrap svg{height:auto;min-height:0}html.embed .scrollhint{display:none}}
+@media (max-width:640px){html.embed .scrollhint{display:block}}
 </style>
 </head>
 <body>
