@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Every Yazaki Makerspace class on one transit-style map, with booking links.">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Makerspace Class Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=National+Park:wght@600;800&display=swap">
+<style>
+/* Layout: a transit-style class map is the hero. Each skill area is a colored line, each class a stop, orientation the start hub.
+   Under it: how classes work, every class as a card, help sessions, then the meeting rotation. Tapping a stop opens a side drawer. */
+:root{
+  --paper:#f8f6f2; --card:#ffffff; --sunken:#f2f0eb; --band:rgba(15,31,35,.035); --grid:rgba(15,31,35,.06);
+  --ink:#0f1f23; --ink-2:#33474c; --ink-3:#5b6c70; --line:#d8dcd9; --line-strong:#b4bebe;
+  --accent:#285b67; --accent-ink:#ffffff; --focus:#304c79; --sand:#f3e1b8;
+  --a-3d:#32664c; --a-pl:#304c79; --a-ss:#833d62; --a-ll:#b23e31; --a-ei:#b8862a; --a-ps:#c4652d;
+  --t-3d:#2b5a43; --t-pl:#304c79; --t-ss:#833d62; --t-ll:#a33a2e; --t-ei:#7a5c12; --t-ps:#a04f1e;
+  --f-display:"National Park","Nunito Sans",system-ui,sans-serif;
+  --f-body:"Nunito Sans",system-ui,-apple-system,sans-serif;
+  --f-mono:"Courier Prime","Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f1f23; --card:#16292e; --sunken:#1d3237; --band:rgba(242,240,235,.04); --grid:rgba(242,240,235,.05);
+  --ink:#f2f0eb; --ink-2:#cfd5d3; --ink-3:#9fadaf; --line:#2c4247; --line-strong:#46606a;
+  --accent:#aac9be; --accent-ink:#0f1f23; --focus:#a3b9de; --sand:#3a3424;
+  --a-3d:#6fb08d; --a-pl:#7f9fd4; --a-ss:#c97aa6; --a-ll:#e07a6b; --a-ei:#e2b85a; --a-ps:#e8925a;
+  --t-3d:#8fc7a8; --t-pl:#a3b9de; --t-ss:#d69ebe; --t-ll:#e89c90; --t-ei:#ebc77a; --t-ps:#eda877;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0f1f23; --card:#16292e; --sunken:#1d3237; --band:rgba(242,240,235,.04); --grid:rgba(242,240,235,.05);
+  --ink:#f2f0eb; --ink-2:#cfd5d3; --ink-3:#9fadaf; --line:#2c4247; --line-strong:#46606a;
+  --accent:#aac9be; --accent-ink:#0f1f23; --focus:#a3b9de; --sand:#3a3424;
+  --a-3d:#6fb08d; --a-pl:#7f9fd4; --a-ss:#c97aa6; --a-ll:#e07a6b; --a-ei:#e2b85a; --a-ps:#e8925a;
+  --t-3d:#8fc7a8; --t-pl:#a3b9de; --t-ss:#d69ebe; --t-ll:#e89c90; --t-ei:#ebc77a; --t-ps:#eda877;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+a{color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.spectrum{height:8px;background:linear-gradient(90deg,#F8F6F2 0%,#AAC9BE 12%,#588A89 24%,#285B67 33%,#304C79 42%,#833D62 52%,#B23E31 63%,#C4652D 74%,#D1A13F 85%,#F3E1B8 100%)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* hero */
+.hero .wrap{padding-block:36px 18px;display:grid;gap:14px}
+.eyebrow{font:800 12px/1.2 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(44px,9vw,92px);line-height:.92;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.lede{font-size:clamp(17px,2.2vw,20px);color:var(--ink-2);margin:0;max-width:52ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.legend button{display:inline-flex;align-items:center;gap:8px;font:700 13px/1 var(--f-body);color:var(--ink);background:var(--card);border:1px solid var(--line-strong);border-radius:999px;padding:7px 12px 7px 8px;cursor:pointer}
+.legend button i{width:22px;height:8px;border-radius:4px;background:var(--c);display:block}
+.legend button span{font:400 12px/1 var(--f-mono);color:var(--ink-3)}
+.legend button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.legend button[aria-pressed="true"] span{color:var(--paper)}
+
+/* map */
+.mapcard{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.maptop{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.progress{font-size:14px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.progress b{font:700 15px/1 var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.linkbtn{font:600 14px/1 var(--f-body);color:var(--accent);background:none;border:0;padding:4px 0;text-decoration:underline;cursor:pointer}
+.mapwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mapwrap svg{display:block;width:100%;min-width:780px;height:auto}
+.scrollhint{display:none;font-size:13px;color:var(--ink-3);padding:8px 16px 0;margin:0}
+@media (max-width:780px){.scrollhint{display:block}}
+.st{cursor:pointer;outline:none}
+.st:focus-visible .ring-focus{stroke:var(--focus);stroke-width:3;opacity:1}
+.ring-focus{opacity:0;fill:none}
+.lbl1{font:700 13px var(--f-body);fill:var(--ink)}
+.lbl2{font:400 12px var(--f-body);fill:var(--ink-2)}
+.lbls{font:italic 400 12px var(--f-body);fill:var(--ink-3)}
+.linelbl{font:800 11px var(--f-body);letter-spacing:.08em}
+.colhdr{font:800 11px var(--f-body);letter-spacing:.12em;fill:var(--ink-3)}
+.dim{opacity:.16;transition:opacity .2s}
+.pulse{animation:pulse 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:.9;transform:scale(1.08)}}
+@media (prefers-reduced-motion: reduce){.pulse{animation:none;opacity:.7}.dim{transition:none}}
+.mapkey{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 16px 14px;font-size:13px;color:var(--ink-2);border-top:1px solid var(--line)}
+.mapkey span{display:inline-flex;align-items:center;gap:6px}
+.mapkey svg{flex:none}
+
+/* sections */
+section{padding-block:44px 0}
+h2{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,4vw,38px);line-height:1;margin:0 0 8px;text-wrap:balance}
+.sec-lede{color:var(--ink-2);margin:0 0 20px;max-width:60ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.rule{background:var(--card);padding:16px;display:grid;gap:4px;align-content:start}
+.rule b{font:700 26px/1 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.rule span{font-size:14px;color:var(--ink-2)}
+.area{display:grid;gap:12px;padding-top:22px}
+.areahd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:3px solid var(--c);padding-bottom:6px}
+.areahd h3{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0;color:var(--tc)}
+.areahd span{font:400 13px var(--f-mono);color:var(--ink-3)}
+.areahd em{font-style:normal;font-size:13px;color:var(--ink-2);margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.ccard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px;align-content:start;min-width:0}
+.ccard h4{margin:0;font-family:var(--f-display);font-weight:800;font-size:18px;line-height:1.15;display:flex;gap:8px;align-items:flex-start}
+.dot{flex:none;width:16px;height:16px;border-radius:50%;border:4px solid var(--c);background:var(--card);margin-top:2px}
+.dot.taken{background:var(--c)}
+.dot.soon{border-style:dashed;border-color:var(--ink-3)}
+.ccard p{margin:0;font-size:14px;color:var(--ink-2)}
+.cmeta{display:flex;flex-wrap:wrap;gap:4px 10px;font:400 13px var(--f-mono);color:var(--ink-3)}
+.lvl{font:800 10px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-2);align-self:center}
+.cact{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:800 14px/1 var(--f-body);padding:10px 14px;border-radius:8px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);text-decoration:none;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{padding:8px 11px;font-size:13px}
+.helpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.hcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:6px;align-content:start}
+.hcard h4{margin:0;font-weight:800;font-size:16px}
+.hcard p{margin:0;font-size:14px;color:var(--ink-2)}
+.chess{background:var(--sand);border-radius:12px;padding:18px;display:grid;gap:10px}
+.chess h3{margin:0;font-family:var(--f-display);font-weight:800;font-size:22px}
+.chess p{margin:0;color:var(--ink-2);max-width:60ch}
+.rot{border-collapse:collapse;width:100%;min-width:420px;font-size:14px;background:var(--card);border-radius:10px;overflow:hidden}
+.rot th,.rot td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
+.rot th{font:800 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.rot td i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:8px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+footer .wrap{padding-block:48px 56px;display:grid;gap:8px;color:var(--ink-3);font-size:13px}
+.tag{font-family:var(--f-display);font-weight:800;font-size:24px;color:var(--ink);margin:0}
+
+/* drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,100%);background:var(--card);border-left:1px solid var(--line-strong);box-shadow:-12px 0 32px rgba(0,0,0,.12);z-index:20;overflow-y:auto;
+  padding:calc(18px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 20px;display:grid;gap:14px;align-content:start}
+@media (max-width:700px){.drawer{top:auto;left:0;width:100%;max-height:82vh;border-left:0;border-top:1px solid var(--line-strong);border-radius:16px 16px 0 0;box-shadow:0 -12px 32px rgba(0,0,0,.18);
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}}
+.dtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.achip{font:800 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:4px;background:var(--c);color:#fff}
+.close{margin-left:auto;font:700 14px/1 var(--f-body);background:var(--sunken);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink);cursor:pointer}
+.drawer h3{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1.02;margin:0;text-wrap:balance}
+.drawer p{margin:0;color:var(--ink-2)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px}
+.facts dt{font:800 11px/1.6 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.facts dd{margin:0;color:var(--ink)}
+.facts dd.mono{font-family:var(--f-mono)}
+.safety{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:var(--sunken);border-radius:8px;padding:10px 12px;font-size:14px}
+.safety b{font:700 11px/1.6 var(--f-mono);letter-spacing:.1em;color:var(--t-ll)}
+.takenrow{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.takenrow input{width:20px;height:20px;accent-color:var(--accent)}
+.wis{display:grid;gap:4px;font-size:14px}
+.soonnote{font-size:14px;background:var(--sunken);border-radius:8px;padding:10px 12px}
+.fullmap{display:none}
+
+/* embed view (?embed): legend + map only, sized to the frame, for the SharePoint Classes page */
+html.embed,html.embed body{height:100%}
+html.embed body{background:var(--card)}
+html.embed .spectrum,html.embed .hero .eyebrow,html.embed .hero h1,html.embed .hero .lede,html.embed footer{display:none}
+html.embed .hero .wrap{padding-block:4px 10px}
+html.embed main .wrap>*:not(.mapcard){display:none}
+html.embed main .wrap{padding-block:0}
+html.embed .wrap{max-width:none;padding-left:2px;padding-right:2px}
+html.embed .mapwrap svg{height:calc(100vh - 196px);min-height:430px}
+html.embed .fullmap{display:inline-flex}
+@media (max-width:780px){html.embed .mapwrap svg{height:auto;min-height:0}}
+</style>
+</head>
+<body>
+
+<div class="spectrum" aria-hidden="true"></div>
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">Yazaki Makerspace · Classes · 1401E–1408E</p>
+  <h1>Class Map</h1>
+  <p class="lede">Six skill areas. 17 classes. Start at orientation, then pick a line. Tap any stop to see what you'll learn and book a seat.</p>
+  <div class="legend" id="legend" role="group" aria-label="Highlight a skill area"></div>
+</div></header>
+
+<main>
+  <div class="wrap">
+    <div class="mapcard">
+      <div class="maptop">
+        <div class="progress" id="progress"></div>
+        <span class="cact"><a class="btn small fullmap" id="fullmap" href="https://im4creative.github.io/MS-Class-Map/" target="_blank" rel="noopener">Open the full map</a><a class="btn small" href="https://outlook.office.com/book/MakerspaceClasses@yazaki.onmicrosoft.com/" target="_blank" rel="noopener">All classes in Bookings</a></span>
+      </div>
+      <p class="scrollhint">Scroll the map sideways to see every line.</p>
+      <div class="mapwrap" id="mapwrap"></div>
+      <div class="mapkey" aria-hidden="true">
+        <span><svg width="22" height="22"><circle cx="11" cy="11" r="7" fill="var(--card)" stroke="var(--ink-2)" stroke-width="3.5"/></svg>Class</span>
+        <span><svg width="22" height="22"><circle cx="11" cy="11" r="7" fill="var(--ink-2)" stroke="var(--ink-2)" stroke-width="3.5"/></svg>Taken</span>
+        <span><svg width="22" height="22"><circle cx="11" cy="11" r="10" fill="none" stroke="var(--ink-2)" stroke-width="2" opacity=".6"/><circle cx="11" cy="11" r="6" fill="var(--card)" stroke="var(--ink-2)" stroke-width="3"/></svg>Next up for you</span>
+        <span><svg width="22" height="22"><circle cx="11" cy="11" r="7" fill="var(--card)" stroke="var(--ink-3)" stroke-width="3" stroke-dasharray="3 3"/></svg>Coming soon</span>
+        <span><svg width="30" height="22"><path d="M2 11H28" stroke="var(--ink-2)" stroke-width="7" stroke-linecap="round"/><path d="M2 11H28" stroke="var(--card)" stroke-width="2.5" stroke-linecap="round"/></svg>CAD branch, feeds Intermediate</span>
+      </div>
+    </div>
+
+    <section id="how" aria-labelledby="h-how">
+      <h2 id="h-how">How classes work</h2>
+      <p class="sec-lede">Same rules in every skill area.</p>
+      <div class="rules">
+        <div class="rule"><b>1 hour</b><span>Every class. Laser Diode runs 90 min.</span></div>
+        <div class="rule"><b>2 seats</b><span>Small on purpose. You get your hands on the machine.</span></div>
+        <div class="rule"><b>1–30 days</b><span>Book ahead in Bookings. No same-day bookings.</span></div>
+        <div class="rule"><b>30 + 30</b><span>Checklist and check-off first. Then your own project.</span></div>
+        <div class="rule"><b>1 = 1</b><span>Pass a class, unlock that machine. Orientation comes first.</span></div>
+      </div>
+    </section>
+
+    <section id="classes" aria-labelledby="h-classes">
+      <h2 id="h-classes">Every class</h2>
+      <p class="sec-lede">Grouped by skill area. Bring a project. The second half of class is yours.</p>
+      <div id="arealist"></div>
+    </section>
+
+    <section id="help" aria-labelledby="h-help">
+      <h2 id="h-help">Stuck? Book help instead</h2>
+      <p class="sec-lede">One-on-one hours for a project that's already underway. Free, like everything here.</p>
+      <div class="helpgrid" id="helpgrid"></div>
+    </section>
+
+    <section id="chess" aria-labelledby="h-chess">
+      <div class="chess">
+        <h3 id="h-chess">Off the clock: Check Makers</h3>
+        <p>Thirty-minute chess lessons, one-on-one. Start with 101 if you're new. Take 102 once you can finish a game on your own.</p>
+        <div class="cact" id="chessbtns"></div>
+      </div>
+    </section>
+
+    <section id="meet" aria-labelledby="h-meet">
+      <h2 id="h-meet">Skill area meetings</h2>
+      <p class="sec-lede">Mondays and Tuesdays, 12:00–1:00 PM, on a 3-week rotation. Come meet the instructors.</p>
+      <div class="tablewrap"><table class="rot">
+        <thead><tr><th scope="col">Week</th><th scope="col">Monday</th><th scope="col">Tuesday</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1</td><td style="--c:var(--a-3d)"><i></i>3D Lab</td><td style="--c:var(--a-ss)"><i></i>Stitch Studio</td></tr>
+          <tr><td class="mono">2</td><td style="--c:var(--a-pl)"><i></i>Photo Lab</td><td style="--c:var(--a-ps)"><i></i>Print Studio</td></tr>
+          <tr><td class="mono">3</td><td style="--c:var(--a-ll)"><i></i>Laser Lab</td><td style="--c:var(--a-ei)"><i></i>Electronics</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+  </div>
+</main>
+
+<footer><div class="wrap">
+  <p class="tag">Life is what we make it.</p>
+  <p>Classes as of October 19, 2026, from the Makerspace Class List and Microsoft Bookings. Booking links open Bookings with your Yazaki sign-in.</p>
+</div></footer>
+
+<aside class="drawer" id="drawer" hidden aria-labelledby="d-title" role="dialog" aria-modal="false"></aside>
+
+<script>
+(function(){
+let EMBED=false;
+try{EMBED=/(^|[?&])embed\b/.test(location.search)||location.hash==="#embed";}catch(e){}
+if(EMBED){document.documentElement.classList.add("embed");document.documentElement.setAttribute("data-theme","light");}
+const BOOK_C="https://outlook.office.com/book/MakerspaceClasses@yazaki.onmicrosoft.com/s/";
+const BOOK_E="https://outlook.office.com/book/MakerspaceClassesEvents@yazaki.onmicrosoft.com/s/";
+const WI_BASE="https://yazaki.sharepoint.com/sites/ynamakerspace9/Instructions/";
+function code(g){const h=g.replace(/-/g,"");const b=[h.slice(6,8),h.slice(4,6),h.slice(2,4),h.slice(0,2),h.slice(10,12),h.slice(8,10),h.slice(14,16),h.slice(12,14)].concat(h.slice(16).match(/../g));const s=btoa(b.map(x=>String.fromCharCode(parseInt(x,16))).join(""));const p=(s.match(/=+$/)||[""])[0].length;return s.replace(/=+$/,"").replace(/\+/g,"-").replace(/\//g,"_")+p;}
+function book(svc){return BOOK_C+code(svc)+"?ismsaljsauthenabled";}
+function wi(f){return WI_BASE+encodeURIComponent(f)+"?web=1";}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+const AREAS={
+  "3d":{name:"3D Lab",room:"1403E",c:"--a-3d",t:"--t-3d"},
+  pl:{name:"Photo Lab",room:"1403E",c:"--a-pl",t:"--t-pl"},
+  ss:{name:"Stitch Studio",room:"1406E",c:"--a-ss",t:"--t-ss"},
+  ll:{name:"Laser Lab",room:"1408E",c:"--a-ll",t:"--t-ll"},
+  ei:{name:"Electronics",room:"1405E",c:"--a-ei",t:"--t-ei"},
+  ps:{name:"Print Studio",room:"1307E",c:"--a-ps",t:"--t-ps"}
+};
+const PRINT_RULE="Prints run under 4 hours, 8 AM to 4 PM. Nothing runs overnight.";
+
+const ORIENT={id:"orient",name:"Makerspace Orientation",level:"Start here",
+  desc:"Your first stop. Learn how the space works, where things live and how to stay safe. Every class asks whether you've taken it.",
+  book:BOOK_E+code("e752af06-818b-4915-a7d2-4734bba8e721")+"?ismsaljsauthenabled",wi:[["Orientation deck","WI-Orientation.pptx"]],pre:[]};
+
+const CL=[
+ {id:"fund",area:"3d",line:"3d",x:260,name:"3D Printing Fundamentals",lb:["Printing","Fundamentals"],level:"Fundamentals",len:"1 hour",
+  desc:"Run and care for the Bambu Lab A1 Mini, from slicing in Bambu Studio to taking your print off the bed. Class prints use PLA in white, grey, black or red.",
+  unlocks:"Bambu Lab A1 Mini printers (5)",pre:["orient"],safety:PRINT_RULE,svc:"cbd7d56f-915e-4a87-aa80-8b5b53642ac5",wi:[["3D Printing Fundamentals","WI-3D_Printing_Fundamentals.pptx"]]},
+ {id:"inter",area:"3d",line:"3d",x:700,name:"3D Printing Intermediate",lb:["Printing","Intermediate"],level:"Intermediate",len:"1 hour",
+  desc:"Run the Bambu Lab P1S with the AMS for multi-color and multi-material prints.",bring:"A model you designed yourself.",
+  unlocks:"Bambu Lab P1S printers with the AMS",pre:["fund"],safety:PRINT_RULE,svc:"5c2ae9ff-c5a0-4ee8-b180-2660f67d42bf",wi:[["3D Printing Intermediate","WI-3D_Printing_Intermediate.pptx"]]},
+ {id:"adv",area:"3d",line:"3d",x:880,name:"3D Printing Advanced",lb:["Printing","Advanced"],level:"Advanced",len:"1 hour",
+  desc:"Run the Bambu Lab H2C and print with specialty filaments like TPU and PETG. You'll dry and load them yourself. The class print is TPU.",
+  unlocks:"Bambu Lab H2C and X1E",pre:["inter"],safety:PRINT_RULE,svc:"f685b5c9-53d8-4d35-a3f4-d0a544b268f2",wi:[["3D Printing Advanced","WI-3D_Printing_Advanced_2026-10-19.pptx"]]},
+ {id:"tinker",area:"3d",line:"cad",x:260,name:"3D CAD: TinkerCAD",lb:["TinkerCAD"],level:"Fundamentals",len:"1 hour",
+  desc:"Design 3D-printable parts in TinkerCAD, right in your browser. You'll finish with a custom die, a textured shape and a fitted object.",
+  leads:"Your own models for 3D Printing Intermediate",pre:["orient"],svc:"384de7b2-a0b7-41f8-b5de-80a59088a939",wi:[["CAD for 3D Printing: TinkerCAD","WI-3D.CAD for 3D Printing TinkerCAD — Work Instructions.pptx"]]},
+ {id:"freecad",area:"3d",line:"cad",x:400,name:"3D CAD: FreeCAD",lb:["FreeCAD"],level:"Fundamentals",len:"1 hour",
+  desc:"Learn FreeCAD, a free CAD program for your computer. Sketch a shape, constrain it and turn it into a printable part.",
+  leads:"Your own models for 3D Printing Intermediate",pre:["orient"],svc:"cdc569ea-86c7-4d77-9b79-2815c4f0d8c5",wi:[]},
+ {id:"fusion",area:"3d",line:"cad",x:560,name:"3D CAD: Fusion 360",lb:["Fusion 360"],soon:true,level:"Intermediate",
+  desc:"Parametric design in Fusion 360. It isn't bookable yet.",bring:"A laptop with 16 GB of RAM and Fusion 360 installed.",pre:["orient"],wi:[]},
+ {id:"headshot",area:"pl",line:"pl",x:260,name:"Headshot & Passport Photography",lb:["Headshot &","Passport"],level:"Fundamentals",len:"1 hour",
+  desc:"Run the headshot setup with the Sony A7 III. Take and edit professional portraits and passport photos.",
+  unlocks:"The headshot setup and Sony A7 III",pre:["orient"],svc:"6983b6b6-4f7a-436c-b559-26e2b15eefeb",wi:[["Headshot","WI-PL.Headshot.pptx"],["Passport","WI-PL.Passport.pptx"]]},
+ {id:"product",area:"pl",line:"pl",x:400,name:"Product Photography",lb:["Product","Photography"],level:"Fundamentals",len:"1 hour",
+  desc:"Shoot in the lightbox and product photo area with the Sony A7R III, the lights and the turntable.",bring:"A product to photograph.",
+  unlocks:"The product photo area: Sony A7R III, lights and turntable",pre:["orient"],svc:"8c10d1fe-2ce0-47ce-a110-12eea9e3c753",wi:[["Product Photography","WI-PL.Product_Photography.pptx"]]},
+ {id:"ig1",area:"pl",line:"pl",x:540,name:"Image Gen 1: Restore & Remix",lb:["Image Gen 1"],level:"Fundamentals",len:"1 hour",
+  desc:"Repair, recolor, restyle and remix your own photos with AI. You control what changes and what stays.",bring:"A few photos you'd like to work on.",
+  leads:"Image Gen 2",pre:["orient"],svc:"46fb9bf4-96d7-4fd1-b7e0-8df6a91a09c9",wi:[],links:[["Class app","https://im4creative.github.io/MS-PL-Restore-and-Remix/"]]},
+ {id:"ig2",area:"pl",line:"pl",x:700,name:"Image Gen 2: Brand & Promotion",lb:["Image Gen 2"],level:"Intermediate",len:"1 hour",
+  desc:"Build image prompts from scratch, one layer at a time: logo, subject, setting, style and layout.",
+  pre:["ig1"],svc:"795ee9fb-0e49-4651-b275-9b91ee406503",wi:[],links:[["Class app","https://im4creative.github.io/MS-PL-Brand-and-Promotion/"]]},
+ {id:"sewing",area:"ss",line:"ss",x:260,name:"Sewing",lb:["Sewing"],level:"Fundamentals",len:"1 hour",
+  desc:"Thread and sew on the Janome Memory Craft 6650, from winding a bobbin to building a basic project.",
+  unlocks:"Janome Memory Craft 6650",pre:["orient"],safety:"Tie back long hair near the needle.",svc:"ee096a94-8ef3-4e85-abb3-c430e92f9a2c",wi:[]},
+ {id:"embroidery",area:"ss",line:"ss",x:400,name:"Embroidery",lb:["Embroidery"],level:"Fundamentals",len:"1 hour",
+  desc:"Get hands-on with the Brother SE2000. Thread it, hoop your fabric and stitch out a design.",
+  unlocks:"Brother SE2000",pre:["orient"],safety:"Tie back long hair near the needle.",svc:"7a84f3f0-8f3c-4a6f-a72f-2ace830f31a8",wi:[["Embroidery","WI-SS.Embroidery.pptx"]]},
+ {id:"laser",area:"ll",line:"ll",x:260,name:"Laser Diode",lb:["Laser Diode","90 min"],level:"Fundamentals",len:"90 min",
+  desc:"Learn the whole Creality Falcon 2 Pro in LightBurn. Engrave with the 1.6W module, cut with the 40W module and use the rotary tool.",
+  unlocks:"Creality Falcon 2 Pro: 1.6W and 40W modules, rotary roller",pre:["orient"],safety:"No PVC. Ever. It makes chlorine gas and eats the optics.",svc:"79dfce39-a191-4633-bab4-61c989e0c8a2",
+  wi:[["1.6W engraving","WI-LL.1.6W_Laser_Fundamentals.pptx"],["40W cutting","WI-LL.40W_Laser_Intermediate.pptx"]]},
+ {id:"wire",area:"ei",line:"ei",x:260,name:"Wire Soldering",lb:["Wire","Soldering"],level:"Fundamentals",len:"1 hour",
+  desc:"Strip, tin and join wires with solder and heat shrink for strong, reliable connections.",
+  unlocks:"The PACE solder station",pre:["orient"],svc:"c9c881b7-d147-4c25-a988-146e515f265e",wi:[]},
+ {id:"board",area:"ei",line:"ei",x:400,name:"Board Soldering",lb:["Board","Soldering"],level:"Fundamentals",len:"1 hour",
+  desc:"Solder parts onto a circuit board. Heat the pad and lead together, then check each joint under the microscope.",
+  unlocks:"The PACE solder station and microscope",pre:["orient"],svc:"6dd77dfe-11d9-468d-aa94-eeac4dc8ed0a",wi:[]},
+ {id:"cricut",area:"ps",line:"ps",x:260,name:"Cricut",lb:["Cricut"],level:"Fundamentals",len:"1 hour",
+  desc:"Design and cut vinyl, paper and fabric projects on the Cricut Maker 3.",
+  unlocks:"Cricut Maker 3",pre:["orient"],svc:"e06caabc-2d43-4d99-a205-217e402a42be",wi:[["Cricut","WI-PS.Cricut.pptx"]]},
+ {id:"dyesub",area:"ps",line:"ps",x:400,name:"DyeSub & Heat Press",lb:["DyeSub &","Heat Press"],level:"Fundamentals",len:"1 hour",
+  desc:"Template, print, apply and press sublimation projects with the Epson EcoTank and the shirt, mug and tumbler presses.",
+  unlocks:"Epson EcoTank printer and the heat presses",pre:["orient"],svc:"bb328c39-d7da-4c6c-b0b6-a9b4cdda0fce",wi:[["DyeSub & Heat Press","WI-PS.Dye_Sub+Heat_Press.pptx"]]},
+ {id:"large",area:"ps",line:"ps",x:540,name:"Large-Format Printing",lb:["Large-Format","Printing"],level:"Fundamentals",len:"1 hour",
+  desc:"Print posters, signs and banners on the HP DesignJet Z9+.",
+  unlocks:"HP DesignJet Z9+",pre:["orient"],svc:"3d3f680f-c102-43c4-b427-a8c3ad894e9c",wi:[["Large-Format Printing","WI-PS.LargeFormatPrinting.pptx"]]}
+];
+const BY={orient:ORIENT};CL.forEach(c=>BY[c.id]=c);
+const BOOKABLE=CL.filter(c=>!c.soon);
+
+const LINES=[
+ {id:"3d",area:"3d",exit:0,bend:118,y:96,end:940,label:"3D LAB · 1403E",lx:140,ly:116,anchor:"start",above:true},
+ {id:"cad",area:"3d",exit:1,bend:132,y:170,end:560,tail:" H666 Q700,170 700,136 V110",hollow:true,label:"3D CAD",lx:154,ly:150,anchor:"start"},
+ {id:"pl",area:"pl",exit:2,bend:146,y:250,end:740,label:"PHOTO LAB · 1403E",lx:756,ly:255,anchor:"start"},
+ {id:"ss",area:"ss",exit:3,y:330,end:440,label:"STITCH STUDIO · 1406E",lx:456,ly:335,anchor:"start"},
+ {id:"ll",area:"ll",exit:4,bend:146,y:400,end:300,label:"LASER LAB · 1408E",lx:316,ly:405,anchor:"start"},
+ {id:"ei",area:"ei",exit:5,bend:132,y:470,end:440,label:"ELECTRONICS · 1405E",lx:456,ly:475,anchor:"start"},
+ {id:"ps",area:"ps",exit:6,bend:118,y:550,end:580,label:"PRINT STUDIO · 1307E",lx:596,ly:555,anchor:"start"}
+];
+const LY={};LINES.forEach(l=>LY[l.id]=l);
+
+/* per-viewer progress, kept only in this browser */
+let taken=new Set(), focusArea=null, openId=null;
+try{const raw=localStorage.getItem("ms-classmap-taken");if(raw)taken=new Set(JSON.parse(raw));}catch(e){}
+function persist(){try{localStorage.setItem("ms-classmap-taken",JSON.stringify([...taken]));}catch(e){}}
+function isNext(c){if(taken.has(c.id)||c.soon)return false;return (c.pre||[]).every(p=>taken.has(p));}
+
+function linePath(L){
+  const hy=270+L.exit*20, r=14, x0=100;
+  if(L.y===hy)return "M"+x0+","+hy+" H"+L.end;
+  const up=L.y<hy, b=L.bend;
+  return "M"+x0+","+hy+" H"+(b-r)+" Q"+b+","+hy+" "+b+","+(up?hy-r:hy+r)+" V"+(up?L.y+r:L.y-r)+" Q"+b+","+L.y+" "+(b+r)+","+L.y+" H"+L.end+(L.tail||"");
+}
+function station(c){
+  const L=LY[c.line], col="var("+AREAS[c.area].c+")", y=L.y, x=c.x, t=taken.has(c.id), nx=isNext(c), sel=openId===c.id;
+  const dim=focusArea&&focusArea!==c.area?' class="dim"':"";
+  let g='<g'+dim+'><g class="st" data-id="'+c.id+'" tabindex="0" role="button" aria-label="'+esc(c.name+", "+c.level+(c.soon?", coming soon":t?", taken":nx?", next up for you":""))+'">';
+  g+='<circle cx="'+x+'" cy="'+y+'" r="26" fill="transparent"/>';
+  if(nx)g+='<circle class="pulse" cx="'+x+'" cy="'+y+'" r="18" fill="none" style="stroke:'+col+'" stroke-width="3"/>';
+  if(sel)g+='<circle cx="'+x+'" cy="'+y+'" r="20" fill="none" style="stroke:var(--ink)" stroke-width="2.5"/>';
+  g+='<circle class="ring-focus" cx="'+x+'" cy="'+y+'" r="22"/>';
+  if(c.soon)g+='<circle cx="'+x+'" cy="'+y+'" r="11" style="fill:var(--card);stroke:var(--ink-3)" stroke-width="3.5" stroke-dasharray="4 4"/>';
+  else g+='<circle cx="'+x+'" cy="'+y+'" r="11" style="fill:'+(t?col:"var(--card)")+';stroke:'+col+'" stroke-width="4.5"/>';
+  if(t)g+='<path d="M'+(x-5)+','+y+' l3.5,3.5 l6.5,-7" fill="none" style="stroke:var(--card)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>';
+  const y1=L.above?y-37:y+31, y2=L.above?y-21:y+47;
+  g+='<text class="lbl1" x="'+x+'" y="'+y1+'" text-anchor="middle">'+esc(c.lb[0])+'</text>';
+  if(c.lb[1])g+='<text class="lbl2" x="'+x+'" y="'+y2+'" text-anchor="middle">'+esc(c.lb[1])+'</text>';
+  if(c.soon)g+='<text class="lbls" x="'+x+'" y="'+y2+'" text-anchor="middle">soon</text>';
+  return g+'</g></g>';
+}
+function mapSVG(){
+  let s='<svg viewBox="0 0 980 630" role="group" aria-label="Class map. Each skill area is a line. Each stop is a class.">';
+  s+='<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" style="stroke:var(--grid)" stroke-width="1"/></pattern></defs>';
+  s+='<rect width="980" height="630" fill="url(#grid)"/>';
+  s+='<rect x="196" y="48" width="414" height="566" rx="12" style="fill:var(--band)"/><rect x="640" y="48" width="120" height="566" rx="12" style="fill:var(--band)"/><rect x="820" y="48" width="120" height="566" rx="12" style="fill:var(--band)"/>';
+  s+='<text class="colhdr" x="403" y="34" text-anchor="middle">FUNDAMENTALS</text><text class="colhdr" x="700" y="34" text-anchor="middle">INTERMEDIATE</text><text class="colhdr" x="880" y="34" text-anchor="middle">ADVANCED</text>';
+  LINES.forEach(L=>{
+    const col="var("+AREAS[L.area].c+")", dim=focusArea&&focusArea!==L.area?' class="dim"':"";
+    s+='<g'+dim+'><path d="'+linePath(L)+'" fill="none" style="stroke:'+col+'" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>';
+    if(L.hollow)s+='<path d="'+linePath(L)+'" fill="none" style="stroke:var(--card)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    s+='<text class="linelbl" x="'+L.lx+'" y="'+L.ly+'" text-anchor="'+L.anchor+'" style="fill:var('+AREAS[L.area].t+')">'+esc(L.label)+'</text></g>';
+  });
+  const ot=taken.has("orient"), on=isNext(ORIENT), osel=openId==="orient";
+  s+='<g class="st" data-id="orient" tabindex="0" role="button" aria-label="Makerspace Orientation, start here'+(ot?", taken":on?", next up for you":"")+'">';
+  if(on)s+='<rect class="pulse" x="28" y="244" width="80" height="172" rx="40" fill="none" style="stroke:var(--ink-2)" stroke-width="3"/>';
+  if(osel)s+='<rect x="26" y="242" width="84" height="176" rx="42" fill="none" style="stroke:var(--ink)" stroke-width="2.5"/>';
+  s+='<rect class="ring-focus" x="24" y="240" width="88" height="180" rx="44"/>';
+  s+='<rect x="36" y="252" width="64" height="156" rx="32" style="fill:'+(ot?"var(--ink)":"var(--card)")+';stroke:var(--ink)" stroke-width="3.5"/>';
+  s+='<text x="68" y="325" text-anchor="middle" style="font:800 12px var(--f-body);letter-spacing:.12em;fill:'+(ot?"var(--paper)":"var(--ink)")+'">START</text>';
+  s+='<text x="68" y="343" text-anchor="middle" style="font:400 11px var(--f-mono);fill:'+(ot?"var(--paper)":"var(--ink-3)")+'">'+(ot?"done":"here")+'</text>';
+  s+='<text class="lbl1" x="68" y="438" text-anchor="middle">Orientation</text><text class="lbl2" x="68" y="454" text-anchor="middle">every class</text><text class="lbl2" x="68" y="469" text-anchor="middle">starts here</text></g>';
+  CL.forEach(c=>{s+=station(c);});
+  return s+'</svg>';
+}
+function renderMap(){
+  const w=document.getElementById("mapwrap"), sl=w.scrollLeft;
+  w.innerHTML=mapSVG(); w.scrollLeft=sl;
+  const n=BOOKABLE.filter(c=>taken.has(c.id)).length;
+  const next=BOOKABLE.filter(isNext).length;
+  document.getElementById("progress").innerHTML='<span>You\'ve taken <b>'+n+'</b> of <b>'+BOOKABLE.length+'</b> classes'+(taken.has("orient")?"":" and haven't marked orientation yet")+'.</span>'+(n||taken.has("orient")?'<button type="button" class="linkbtn" id="resetmap">Clear my map</button>':'<span>Open a stop and tick "I\'ve taken this" to light up your path.</span>');
+}
+function renderLegend(){
+  document.getElementById("legend").innerHTML=Object.entries(AREAS).map(([k,a])=>'<button type="button" data-area="'+k+'" aria-pressed="'+(focusArea===k)+'" style="--c:var('+a.c+')"><i></i>'+esc(a.name)+' <span>'+a.room+'</span></button>').join("");
+}
+function cardHTML(c){
+  const a=AREAS[c.area], t=taken.has(c.id);
+  let h='<article class="ccard" style="--c:var('+a.c+')"><h4><span class="dot'+(c.soon?" soon":t?" taken":"")+'" aria-hidden="true"></span><span>'+esc(c.name)+'</span></h4>';
+  h+='<div class="cmeta"><span class="lvl">'+esc(c.level)+'</span>'+(c.soon?'<span>Coming soon</span>':'<span>'+esc(c.len)+' · 2 seats</span>')+(t?'<span>Taken</span>':"")+'</div>';
+  h+='<p>'+esc(c.desc)+'</p>';
+  h+='<div class="cact">'+(c.soon?"":'<a class="btn primary small" href="'+book(c.svc)+'" target="_blank" rel="noopener">Book a seat</a>')+'<button type="button" class="btn small" data-open="'+c.id+'">Details</button></div>';
+  return h+'</article>';
+}
+function renderList(){
+  document.getElementById("arealist").innerHTML=Object.entries(AREAS).map(([k,a])=>{
+    const items=CL.filter(c=>c.area===k);
+    return '<div class="area" style="--c:var('+a.c+');--tc:var('+a.t+')"><div class="areahd"><h3>'+esc(a.name)+'</h3><span>'+a.room+'</span><em>'+items.filter(c=>!c.soon).length+' class'+(items.filter(c=>!c.soon).length===1?"":"es")+'</em></div><div class="grid">'+items.map(cardHTML).join("")+'</div></div>';
+  }).join("");
+}
+function renderHelp(){
+  const H=[
+    ["3D Lab Help","7362e4c9-9961-42f5-a3e9-a1dfac4ab5fa","Slicing, a failed print or a model that won't print.","1 hour"],
+    ["Photo Lab Help","8ce3f329-64a6-4add-b6dd-189c3f18f0d2","Camera settings, lighting or editing.","1 hour"],
+    ["Laser Lab Help","d2ed981d-6216-4403-a734-b82349221f71","LightBurn settings, material tests or a cut that won't go through.","1 hour"],
+    ["Image Gen Design Help","2200d0ed-62d9-43ca-9ce6-cbf0127af2a2","Bring a design you're working on. Make it with AI image generation.","1 hour"],
+    ["DyeSub Reservation","c0689172-3928-4292-a972-045edfca50f7","The DyeSub printer and presses, yours for a block. Pass DyeSub & Heat Press first.","2 hours"]
+  ];
+  document.getElementById("helpgrid").innerHTML=H.map(h=>'<div class="hcard"><h4>'+esc(h[0])+'</h4><p>'+esc(h[2])+'</p><div class="cmeta"><span>'+h[3]+' · free</span></div><div class="cact"><a class="btn small" href="'+book(h[1])+'" target="_blank" rel="noopener">Book</a></div></div>').join("");
+  document.getElementById("chessbtns").innerHTML='<a class="btn small" href="'+book("a1f61275-511e-44e2-851b-77dfd0ec5e04")+'" target="_blank" rel="noopener">Book 101: Fundamentals</a><a class="btn small" href="'+book("a01c2bc8-588b-4891-85a6-b11d9e65db02")+'" target="_blank" rel="noopener">Book 102: Intermediate</a>';
+}
+function drawerHTML(c){
+  const isO=c.id==="orient", a=isO?null:AREAS[c.area], t=taken.has(c.id);
+  let h='<div class="dtop">'+(isO?'<span class="achip" style="background:var(--ink);color:var(--paper)">Start here</span>':'<span class="achip" style="background:var('+a.c+')">'+esc(a.name)+' · '+a.room+'</span><span class="lvl">'+esc(c.level)+'</span>')+'<button type="button" class="close" id="dclose">Close</button></div>';
+  h+='<h3 id="d-title">'+esc(c.name)+'</h3><p>'+esc(c.desc)+'</p>';
+  h+='<dl class="facts">';
+  if(!isO&&!c.soon)h+='<dt>Length</dt><dd class="mono">'+esc(c.len)+'</dd><dt>Seats</dt><dd class="mono">2</dd><dt>Book</dt><dd>1 to 30 days ahead</dd>';
+  if(c.pre&&c.pre.length&&!isO){h+='<dt>Take first</dt><dd>'+c.pre.map(p=>esc(BY[p].name)+(taken.has(p)?" ✓":"")).join(", ")+'</dd>';}
+  if(c.unlocks)h+='<dt>Unlocks</dt><dd>'+esc(c.unlocks)+'</dd>';
+  if(c.leads)h+='<dt>Leads to</dt><dd>'+esc(c.leads)+'</dd>';
+  if(c.bring)h+='<dt>Bring</dt><dd>'+esc(c.bring)+'</dd>';
+  else if(!isO&&!c.soon)h+='<dt>Bring</dt><dd>A project for the second half</dd>';
+  h+='</dl>';
+  if(c.safety)h+='<div class="safety"><b>SAFETY</b><span>'+esc(c.safety)+'</span></div>';
+  if(c.soon)h+='<p class="soonnote">Not bookable yet. Watch this map for a date.</p>';
+  else h+='<div class="cact"><a class="btn primary" href="'+(isO?c.book:book(c.svc))+'" target="_blank" rel="noopener">'+(isO?"Book orientation":"Book a seat")+'</a></div>';
+  if(!c.soon)h+='<label class="takenrow" for="dtaken"><input type="checkbox" id="dtaken"'+(t?" checked":"")+'> I\'ve taken this'+(isO?"":" class")+'</label>';
+  const w=(c.wi||[]).map(x=>'<a href="'+wi(x[1])+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>').concat((c.links||[]).map(x=>'<a href="'+x[1]+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'));
+  if(w.length)h+='<div class="wis"><span class="eyebrow">Work instructions</span>'+w.join("")+'</div>';
+  return h;
+}
+let lastFocus=null;
+function openDrawer(id){
+  const c=BY[id];if(!c)return;
+  if(!openId)lastFocus=document.activeElement;
+  openId=id;const d=document.getElementById("drawer");d.innerHTML=drawerHTML(c);d.hidden=false;
+  renderMap();
+  const cl=document.getElementById("dclose");if(cl)cl.focus({preventScroll:true});
+}
+function closeDrawer(){
+  const d=document.getElementById("drawer");d.hidden=true;d.innerHTML="";const was=openId;openId=null;renderMap();
+  const back=document.querySelector('.st[data-id="'+was+'"]')||lastFocus;if(back&&back.focus)back.focus({preventScroll:true});
+}
+function renderAll(){renderLegend();renderMap();renderList();}
+
+document.addEventListener("click",e=>{
+  const st=e.target.closest(".st");if(st){openDrawer(st.dataset.id);return;}
+  const op=e.target.closest("[data-open]");if(op){openDrawer(op.dataset.open);return;}
+  const ar=e.target.closest("[data-area]");if(ar){focusArea=focusArea===ar.dataset.area?null:ar.dataset.area;renderLegend();renderMap();return;}
+  if(e.target.id==="dclose"){closeDrawer();return;}
+  if(e.target.id==="resetmap"){taken=new Set();persist();renderAll();if(openId)document.getElementById("drawer").innerHTML=drawerHTML(BY[openId]);return;}
+});
+document.addEventListener("change",e=>{
+  if(e.target.id==="dtaken"&&openId){if(e.target.checked)taken.add(openId);else taken.delete(openId);persist();renderMap();renderList();
+    const d=document.getElementById("drawer");d.innerHTML=drawerHTML(BY[openId]);const cb=document.getElementById("dtaken");if(cb)cb.focus({preventScroll:true});}
+});
+document.addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("st")){e.preventDefault();openDrawer(e.target.dataset.id);}
+  if(e.key==="Escape"&&openId)closeDrawer();
+});
+renderAll();renderHelp();
+})();
+</script>
+
+</body>
+</html>
